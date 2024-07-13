@@ -1,8 +1,44 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  redistest:
-    image: redistest
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+  redis1:
+    image: ryansabandal/redis-test:latest
+    container_name: redis1
+    restart: always
+    stop_grace_period: 10s
+    networks:
+      redis_net:
+        ipv4_address: 172.20.0.2
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./configs/redis/redis-master.conf:/appl/redis-haproxy/redis/redis.conf"
+
+  redis2:
+    image: ryansabandal/redis-test:latest
+    container_name: redis2
+    networks:
+      redis_net:
+        ipv4_address: 172.20.0.3
+    ports:
+      - "6381:6379"
+    volumes:
+      - ./configs/redis/redis-slave.conf:/appl/redis-haproxy/redis/redis.conf"
+
+  redis3:
+    image: ryansabandal/redis-test:latest
+    container_name: redis3
+    networks:
+      redis_net:
+        ipv4_address: 172.20.0.4
+    ports:
+      - "6382:6379"
+    volumes:
+      - ./configs/redis/redis-slave.conf:/appl/redis-haproxy/redis/redis.conf"
+    
+networks:
+  redis_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
